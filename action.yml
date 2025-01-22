@@ -10,6 +10,9 @@ inputs:
   sonar_project_key:
     description: The SonarQube project key.
     required: true
+  github_token:
+    description: GitHub token for authentication.
+    required: true
 outputs:
   analysis_report:
     description: The SonarQube analysis report in formatted text.
@@ -31,7 +34,7 @@ runs:
         SONAR_PROJECT_KEY: ${{ inputs.sonar_project_key }}
         SONAR_HOST_URL: ${{ inputs.sonar_host_url }}
       run: |
-        RESPONSE=$(curl -s -u "$SONAR_TOKEN:" "$SONAR_HOST_URL/api/qualitygates/project_status?projectKey=$SONAR_PROJECT_KEY&pullRequest=${{ github.event.pull_request.number }}")
+        RESPONSE=$(curl -s -u "$SONAR_TOKEN:" "$SONAR_HOST_URL/api/qualitygates/project_status?projectKey=$SONAR_PROJECT_KEY&pullRequest=${{ github.event.pull_request.number }})
         echo "$RESPONSE" > sonarqube.json
       shell: bash
 
@@ -49,7 +52,7 @@ runs:
     - name: Post SonarQube Report to PR
       uses: actions/github-script@v6
       with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
+        github-token: ${{ inputs.github_token }}
         script: |
           github.rest.issues.createComment({
             issue_number: context.issue.number,
