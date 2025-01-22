@@ -34,7 +34,7 @@ runs:
         SONAR_PROJECT_KEY: ${{ inputs.sonar_project_key }}
         SONAR_HOST_URL: ${{ inputs.sonar_host_url }}
       run: |
-        RESPONSE=$(curl -s -u "$SONAR_TOKEN:" "$SONAR_HOST_URL/api/qualitygates/project_status?projectKey=$SONAR_PROJECT_KEY&pullRequest=${{ github.event.pull_request.number }})
+        RESPONSE=$(curl -s -u "$SONAR_TOKEN:" "$SONAR_HOST_URL/api/qualitygates/project_status?projectKey=$SONAR_PROJECT_KEY&pullRequest=${{ github.event.pull_request.number }}")
         echo "$RESPONSE" > sonarqube.json
         STATUS=$(jq -r '.projectStatus.status' sonarqube.json)
         CONDITIONS=$(jq -r '.projectStatus.conditions[] | "- **\(.metricKey)**: \(.status) (Threshold: \(.comparator) \(.errorThreshold), Actual: \(.actualValue))"' sonarqube.json)
