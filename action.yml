@@ -34,11 +34,11 @@ runs:
         SONAR_PROJECT_KEY: ${{ inputs.sonar_project_key }}
         SONAR_HOST_URL: ${{ inputs.sonar_host_url }}
       run: |
-        RESPONSE=$(curl -s -u "$SONAR_TOKEN:" "$SONAR_HOST_URL/api/qualitygates/project_status?projectKey=$SONAR_PROJECT_KEY&pullRequest=${{ github.event.pull_request.number }}")
+        RESPONSE=$(curl -s -u "$SONAR_TOKEN:" "$SONAR_HOST_URL/api/qualitygates/project_status?projectKey=$SONAR_PROJECT_KEY&pullRequest=${{ github.event.pull_request.number }})
         echo "$RESPONSE" > sonarqube.json
-        STATUS=$(jq -r '.projectStatus.status' $RESPONSE)
-        CONDITIONS=$(jq -r '.projectStatus.conditions[] | "- **\(.metricKey)**: \(.status) (Threshold: \(.comparator) \(.errorThreshold), Actual: \(.actualValue))"' $RESPONSE)
-        COMMENT="### SonarQube Analysis Report\n**Overall Status**: $STATUS\n**Details:**\n$CONDITIONS\n"
+        STATUS=$(jq -r '.projectStatus.status' sonarqube.json)
+        CONDITIONS=$(jq -r '.projectStatus.conditions[] | "- **\(.metricKey)**: \(.status) (Threshold: \(.comparator) \(.errorThreshold), Actual: \(.actualValue))"' sonarqube.json)
+        COMMENT="### SonarQube Analysis Report\n**Overall Status**: $STATUS\n\n**Details:**\n$CONDITIONS"
         echo "analysis_report=$COMMENT" >> "$GITHUB_OUTPUT"
       shell: bash
 
@@ -52,5 +52,5 @@ runs:
             issue_number: context.issue.number,
             owner: context.repo.owner,
             repo: context.repo.repo,
-            body: `${{ steps.norm-format.outputs.analysis_report }}`
+            body: `${{ steps.get-sonarqube-analysis.outputs.analysis_report }}`
           })
