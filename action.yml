@@ -36,14 +36,8 @@ runs:
       run: |
         RESPONSE=$(curl -s -u "$SONAR_TOKEN:" "$SONAR_HOST_URL/api/qualitygates/project_status?projectKey=$SONAR_PROJECT_KEY&pullRequest=${{ github.event.pull_request.number }}")
         echo "$RESPONSE" > sonarqube.json
-      shell: bash
-
-    # Parse SonarQube Analysis
-    - name: Normalize SonarQube Analysis Format
-      id: norm-format
-      run: |
-        STATUS=$(jq -r '.projectStatus.status' sonarqube.json)
-        CONDITIONS=$(jq -r '.projectStatus.conditions[] | "- **\(.metricKey)**: \(.status) (Threshold: \(.comparator) \(.errorThreshold), Actual: \(.actualValue))"' sonarqube.json)
+        STATUS=$(jq -r '.projectStatus.status' $RESPONSE)
+        CONDITIONS=$(jq -r '.projectStatus.conditions[] | "- **\(.metricKey)**: \(.status) (Threshold: \(.comparator) \(.errorThreshold), Actual: \(.actualValue))"' $RESPONSE)
         COMMENT="### SonarQube Analysis Report\n**Overall Status**: $STATUS\n**Details:**\n$CONDITIONS\n"
         echo "analysis_report=$COMMENT" >> "$GITHUB_OUTPUT"
       shell: bash
