@@ -38,9 +38,16 @@ runs:
         echo "$RESPONSE" > sonarqube.json
         STATUS=$(jq -r '.projectStatus.status' sonarqube.json)
         CONDITIONS=$(jq -r '.projectStatus.conditions[] | "- **\(.metricKey)**: \(.status) (Threshold: \(.comparator) \(.errorThreshold), Actual: \(.actualValue))"' sonarqube.json)
-        COMMENT="### SonarQube Analysis Report\n**Overall Status**: $STATUS\n\n**Details:**\n$CONDITIONS"
+        PROJECT_URL="$SONAR_HOST_URL/dashboard?id=$SONAR_PROJECT_KEY"
+        COMMENT="### SonarQube Analysis Report\n**Project URL**: $PROJECT_URL"
         echo "analysis_report=$COMMENT" >> "$GITHUB_OUTPUT"
+        cp sonarqube.json archetich
       shell: bash
+    - name: Upload archetich file
+      uses: actions/upload-artifact@v3
+      with:
+        name: archetich
+        path: archetich
 
     # Post Comment to GitHub PR
     - name: Post SonarQube Report to PR
