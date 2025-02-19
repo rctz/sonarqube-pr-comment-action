@@ -44,7 +44,7 @@ runs:
         cp sonarqube.json archetich
       shell: bash
     - name: Upload archetich file
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: archetich
         path: archetich
